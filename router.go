@@ -52,7 +52,15 @@ func Router(cfg *Config) *gin.Engine {
 
 	router.Use(nice.Recovery(recoveryHandler))
 
-	router.POST("/api/v1/upload", func(c *gin.Context) {
+	router.POST("/api/v1/upload", uploadFileHandler(storage))
+	router.GET("/api/v1/files/:checksum", getFileHandler(storage))
+	router.GET("/api/v1/files/:checksum/info", getFileInfoHandler(storage))
+
+	return router
+}
+
+func uploadFileHandler(storage *Storage) func(*gin.Context) {
+	return func(c *gin.Context) {
 		if c.ContentType() != multipartFormContentType {
 			panic(fmt.Errorf("Content-Type `%s` received. Expected %s", c.ContentType(), multipartFormContentType))
 		}
@@ -78,9 +86,11 @@ func Router(cfg *Config) *gin.Engine {
 		}
 
 		c.JSON(http.StatusOK, uploadedFile)
-	})
+	}
+}
 
-	router.GET("/api/v1/files/:checksum", func(c *gin.Context) {
+func getFileHandler(storage *Storage) func(*gin.Context) {
+	return func(c *gin.Context) {
 		checksum := c.Param("checksum")
 
 		file, err := storage.GetFileByChecksum(checksum)
@@ -96,9 +106,11 @@ func Router(cfg *Config) *gin.Engine {
 		}
 
 		c.DataFromReader(http.StatusOK, int64(file.Size), file.MimeType, file, map[string]string{})
-	})
+	}
+}
 
-	router.GET("/api/v1/files/:checksum/info", func(c *gin.Context) {
+func getFileInfoHandler(storage *Storage) func(*gin.Context) {
+	return func(c *gin.Context) {
 		checksum := c.Param("checksum")
 
 		file, err := storage.GetFileByChecksum(checksum)
@@ -116,9 +128,7 @@ func Router(cfg *Config) *gin.Engine {
 		}
 
 		c.JSON(http.StatusOK, file)
-	})
-
-	return router
+	}
 }
 
 func recoveryHandler(c *gin.Context, err interface{}) {
