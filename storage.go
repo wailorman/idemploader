@@ -11,6 +11,7 @@ import (
 type MinioInteractor interface {
 	PutObject(bucketName string, objectName string, reader io.Reader, objectSize int64, opts minio.PutObjectOptions) (n int64, err error)
 	StatObject(bucketName string, objectName string, opts minio.StatObjectOptions) (minio.ObjectInfo, error)
+	GetObject(bucketName, objectName string, opts minio.GetObjectOptions) (*minio.Object, error)
 }
 
 // FileURLBuilder _
@@ -27,14 +28,55 @@ type Storage struct {
 
 // StorageFile _
 type StorageFile struct {
+	storage  *Storage
+	s3Object *minio.Object
 	URL      string `json:"url"`
 	Size     int    `json:"size"`
 	Checksum string `json:"checksum"`
 	MimeType string `json:"mime_type"`
 }
 
+// Read _
+func (sf *StorageFile) Read(p []byte) (n int, err error) {
+	if sf.s3Object == nil {
+		sf.s3Object, err = sf.getS3Object()
+
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return sf.s3Object.Read(p)
+}
+
+// getS3Object _
+func (sf *StorageFile) getS3Object() (*minio.Object, error) {
+	if sf.storage == nil {
+		panic(errors.New("StorageFile is missing .storage"))
+	}
+
+	if sf.storage.s3Client == nil {
+		panic(errors.New("StorageFile.storage is missing .s3Client"))
+	}
+
+	object, err := sf.storage.s3Client.GetObject(
+		sf.storage.S3Bucket,
+		sf.storage.s3FilePath(sf.Checksum),
+		minio.GetObjectOptions{},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return object, nil
+}
+
+// ErrFileNotFoundCode _
+const ErrFileNotFoundCode = "FILE_NOT_FOUND"
+
 // ErrFileNotFound _
-var ErrFileNotFound = errors.New("File not found")
+var ErrFileNotFound = errors.New(ErrFileNotFoundCode)
 
 // StorageConfig _
 type StorageConfig struct {
@@ -47,7 +89,7 @@ type StorageConfig struct {
 }
 
 // NewStorage _
-func NewStorage(cfg *StorageConfig) (*Storage, error) {
+func NewStorage(cfg StorageConfig) (*Storage, error) {
 	s3Client, err := minio.New(
 		cfg.S3Host,
 		cfg.S3AccessKey,
@@ -69,9 +111,10 @@ func NewStorage(cfg *StorageConfig) (*Storage, error) {
 
 // Filer _
 type Filer interface {
-	io.Reader
 	Checksum() string
 	ContentType() string
+	Size() int
+	Open() io.Reader
 }
 
 // UploadFileIfNotExists _
@@ -83,19 +126,19 @@ func (u *Storage) UploadFileIfNotExists(file Filer) error {
 	}
 
 	if !isFileExists {
-		return u.UploadFile(file)
+		return u.UploadFile(file, file.Open())
 	}
 
 	return nil
 }
 
 // UploadFile _
-func (u *Storage) UploadFile(file Filer) error {
+func (u *Storage) UploadFile(file Filer, reader io.Reader) error {
 	_, err := u.s3Client.PutObject(
 		u.S3Bucket,
 		u.s3FilePath(file.Checksum()),
-		file,
-		-1,
+		reader,
+		int64(file.Size()),
 		minio.PutObjectOptions{
 			ContentType: file.ContentType(),
 		},
@@ -110,10 +153,11 @@ func (u *Storage) UploadFile(file Filer) error {
 
 // GetFile _
 func (u *Storage) GetFile(file Filer) (*StorageFile, error) {
-	return u.getFileByChecksum(file.Checksum())
+	return u.GetFileByChecksum(file.Checksum())
 }
 
-func (u *Storage) getFileByChecksum(checksum string) (*StorageFile, error) {
+// GetFileByChecksum _
+func (u *Storage) GetFileByChecksum(checksum string) (*StorageFile, error) {
 	fileObj, err := u.s3Client.StatObject(
 		u.S3Bucket,
 		u.s3FilePath(checksum),
@@ -132,6 +176,7 @@ func (u *Storage) getFileByChecksum(checksum string) (*StorageFile, error) {
 	}
 
 	return &StorageFile{
+		storage:  u,
 		Checksum: checksum,
 		URL:      u.URLBuilder(checksum),
 		Size:     int(fileObj.Size),
@@ -140,7 +185,7 @@ func (u *Storage) getFileByChecksum(checksum string) (*StorageFile, error) {
 }
 
 func (u *Storage) isFileExists(checksum string) (bool, error) {
-	uploadedFile, err := u.getFileByChecksum(checksum)
+	uploadedFile, err := u.GetFileByChecksum(checksum)
 
 	if uploadedFile != nil {
 		return true, nil

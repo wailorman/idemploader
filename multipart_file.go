@@ -12,19 +12,18 @@ import (
 type MultipartFile struct {
 	file     *multipart.FileHeader
 	checksum string
-	reader   io.Reader
 	size     int
 }
 
 // NewMultipartFile _
 func NewMultipartFile(file *multipart.FileHeader) (*MultipartFile, error) {
-	reader, err := file.Open()
+	readerChecksum, err := file.Open()
 
 	if err != nil {
 		return nil, errors.New("Opening file error: " + err.Error())
 	}
 
-	checksum, err := calculateChecksum(reader)
+	checksum, err := calculateChecksum(readerChecksum)
 
 	if err != nil {
 		return nil, err
@@ -32,8 +31,8 @@ func NewMultipartFile(file *multipart.FileHeader) (*MultipartFile, error) {
 
 	return &MultipartFile{
 		file:     file,
-		reader:   reader,
 		checksum: checksum,
+		size:     int(file.Size),
 	}, nil
 }
 
@@ -52,18 +51,15 @@ func (mf *MultipartFile) ContentType() string {
 	return mf.file.Header.Get("Content-Type")
 }
 
-// Read _
-func (mf *MultipartFile) Read(p []byte) (n int, err error) {
-	if mf.reader == nil {
-		mf.reader, err = mf.file.Open()
+// Open _
+func (mf *MultipartFile) Open() io.Reader {
+	reader, err := mf.file.Open()
 
-		if err != nil {
-			return 0, err
-		}
+	if err != nil {
+		panic(err)
 	}
 
-	return mf.reader.Read(p)
-
+	return reader
 }
 
 func calculateChecksum(reader io.Reader) (string, error) {

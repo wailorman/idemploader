@@ -3,6 +3,7 @@ package idemploader
 import (
 	"errors"
 	"fmt"
+	"net/http"
 
 	nice "github.com/ekyoung/gin-nice-recovery"
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,21 @@ const multipartFormContentType = "multipart/form-data"
 func Router(cfg *Config) *gin.Engine {
 	router := gin.Default()
 
+	storage, err := NewStorage(StorageConfig{
+		S3Host:         cfg.S3Host,
+		S3AccessKey:    cfg.S3AccessKey,
+		S3AccessSecret: cfg.S3AccessSecret,
+		S3Bucket:       cfg.S3Bucket,
+		S3Path:         cfg.S3Path,
+		URLBuilder: func(checksum string) string {
+			return cfg.Host + "/api/v1/files/" + checksum
+		},
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
 	router.Use(nice.Recovery(recoveryHandler))
 
 	router.POST("/api/v1/upload", func(c *gin.Context) {
@@ -49,34 +65,57 @@ func Router(cfg *Config) *gin.Engine {
 			panic(err)
 		}
 
-		uploader, err := NewStorage(&StorageConfig{
-			S3Host:         cfg.S3Host,
-			S3AccessKey:    cfg.S3AccessKey,
-			S3AccessSecret: cfg.S3AccessSecret,
-			S3Bucket:       cfg.S3Bucket,
-			S3Path:         cfg.S3Path,
-			URLBuilder: func(checksum string) string {
-				return cfg.Host + "/api/v1/files/" + checksum
-			},
-		})
+		err = storage.UploadFileIfNotExists(file)
 
 		if err != nil {
 			panic(err)
 		}
 
-		err = uploader.UploadFileIfNotExists(file)
+		uploadedFile, err := storage.GetFile(file)
 
 		if err != nil {
 			panic(err)
 		}
 
-		uploadedFile, err := uploader.GetFile(file)
+		c.JSON(http.StatusOK, uploadedFile)
+	})
+
+	router.GET("/api/v1/files/:checksum", func(c *gin.Context) {
+		checksum := c.Param("checksum")
+
+		file, err := storage.GetFileByChecksum(checksum)
 
 		if err != nil {
+			if err == ErrFileNotFound {
+				c.JSON(http.StatusNotFound, &ErrorResponse{
+					Code: err.Error(),
+				})
+			} else {
+				panic(err)
+			}
+		}
+
+		c.DataFromReader(http.StatusOK, int64(file.Size), file.MimeType, file, map[string]string{})
+	})
+
+	router.GET("/api/v1/files/:checksum/info", func(c *gin.Context) {
+		checksum := c.Param("checksum")
+
+		file, err := storage.GetFileByChecksum(checksum)
+
+		if err != nil {
+			if err == ErrFileNotFound {
+				c.JSON(http.StatusNotFound, ErrorResponse{
+					Code: ErrFileNotFoundCode,
+				})
+
+				return
+			}
+
 			panic(err)
 		}
 
-		c.JSON(200, uploadedFile)
+		c.JSON(http.StatusOK, file)
 	})
 
 	return router
@@ -90,7 +129,7 @@ func recoveryHandler(c *gin.Context, err interface{}) {
 		message = e.Error()
 	}
 
-	c.JSON(500, &ErrorResponse{
+	c.JSON(http.StatusInternalServerError, &ErrorResponse{
 		Code:    ErrUnknown.Error(),
 		Message: message,
 	})
