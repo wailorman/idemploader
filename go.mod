@@ -8,4 +8,5 @@ require (
 	github.com/go-errors/errors v1.0.1 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/minio/minio-go/v6 v6.0.45
+	github.com/sendgrid/rest v2.4.1+incompatible
 )

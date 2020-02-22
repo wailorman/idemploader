@@ -1,4 +1,4 @@
-package idemploader
+package server
 
 import (
 	"errors"
