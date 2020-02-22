@@ -71,7 +71,7 @@ func (ia *IdemploaderAPI) UploadFromFile(filepath string) (*File, error) {
 
 	writer.Close()
 
-	req, err := http.NewRequest("POST", ia.baseURL+"/v1/files", body)
+	req, err := http.NewRequest("POST", ia.baseURL+"/api/v1/files", body)
 
 	if err != nil {
 		return nil, errors.New("Failed to build request: " + err.Error())
@@ -112,7 +112,7 @@ func (ia *IdemploaderAPI) UploadFromFile(filepath string) (*File, error) {
 func (ia *IdemploaderAPI) GetFileInfo(checksum string) (*File, error) {
 	request := rest.Request{
 		Method:  rest.Get,
-		BaseURL: ia.baseURL + "/v1/files/" + checksum,
+		BaseURL: ia.baseURL + "/api/v1/files/" + checksum,
 		Headers: map[string]string{
 			AccessTokenHeaderName: ia.accessToken,
 		},
