@@ -163,14 +163,12 @@ func DownloadFileToPath(filepath, url string) error {
 }
 
 // DownloadFile _
-func DownloadFile(url string) (io.Reader, error) {
+func DownloadFile(url string) (io.ReadCloser, error) {
 	resp, err := http.Get(url)
 
 	if err != nil {
 		return nil, err
 	}
-
-	defer resp.Body.Close()
 
 	return resp.Body, nil
 }
