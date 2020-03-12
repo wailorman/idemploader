@@ -7,8 +7,6 @@ on:
 
 env:
   IDEMPLOADER_K8S_NAMESPACE: "idemploader"
-  IDEMPLOADER_API_IMAGE: "${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA}"
-  IDEMPLOADER_DOCS_IMAGE: "${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${GITHUB_SHA}"
   IDEMPLOADER_API_K8S_DEPLOYMENT_NAME: "idemploader-api"
   IDEMPLOADER_DOCS_K8S_DEPLOYMENT_NAME: "idemploader-docs"
 jobs:
@@ -26,22 +24,22 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build API docker image
-        run: docker build --tag ${IDEMPLOADER_API_IMAGE} .
+        run: docker build --tag ${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA} .
 
       - name: Build Docs docker image
-        run: docker build --tag ${IDEMPLOADER_DOCS_IMAGE} docs/
+        run: docker build --tag ${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${GITHUB_SHA} docs/
 
       - name: Push API docker image
-        run: docker push ${IDEMPLOADER_API_IMAGE}
+        run: docker push ${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA}
 
       - name: Push Docs docker image
-        run: docker push ${IDEMPLOADER_DOCS_IMAGE}
+        run: docker push ${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${GITHUB_SHA}
       
       - name: Populate API deployment configuration
         run: cat ${GITHUB_WORKSPACE}/.k8s/idemploader-api.yml | envsubst > ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-api.yml
         env:
           IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
-          IDEMPLOADER_API_IMAGE: ${IDEMPLOADER_API_IMAGE}
+          IDEMPLOADER_API_IMAGE: ${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA}
           IDEMPLOADER_S3_HOST: ${{ secrets.IDEMPLOADER_S3_HOST }}
           IDEMPLOADER_S3_ACCESS_KEY: ${{ secrets.IDEMPLOADER_S3_ACCESS_KEY }}
           IDEMPLOADER_S3_ACCESS_SECRET: ${{ secrets.IDEMPLOADER_S3_ACCESS_SECRET }}
@@ -54,7 +52,7 @@ jobs:
         run: cat ${GITHUB_WORKSPACE}/.k8s/idemploader-docs.yml | envsubst > ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-docs.yml
         env:
           IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
-          IDEMPLOADER_DOCS_IMAGE: ${IDEMPLOADER_DOCS_IMAGE}
+          IDEMPLOADER_DOCS_IMAGE: ${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${GITHUB_SHA}
           
       - name: Save DigitalOcean kubeconfig
         uses: digitalocean/action-doctl@master
