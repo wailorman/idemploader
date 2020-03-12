@@ -1,0 +1,84 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  IDEMPLOADER_K8S_NAMESPACE: "idemploader"
+  IDEMPLOADER_API_IMAGE: "${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA}"
+  IDEMPLOADER_DOCS_IMAGE: "${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${GITHUB_SHA}"
+  IDEMPLOADER_API_K8S_DEPLOYMENT_NAME: "idemploader-api"
+  IDEMPLOADER_DOCS_K8S_DEPLOYMENT_NAME: "idemploader-docs"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v1
+        
+      - name: Login docker
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.DOCKER_REGISTRY }} # default: index.docker.io
+          username: ${{ secrets.DOCKER_LOGIN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build API docker image
+        run: docker build --tag ${IDEMPLOADER_API_IMAGE} .
+
+      - name: Build Docs docker image
+        run: docker build --tag ${IDEMPLOADER_DOCS_IMAGE} docs/
+
+      - name: Push API docker image
+        run: docker push ${IDEMPLOADER_API_IMAGE}
+
+      - name: Push Docs docker image
+        run: docker push ${IDEMPLOADER_DOCS_IMAGE}
+      
+      - name: Populate API deployment configuration
+        run: cat ${GITHUB_WORKSPACE}/.k8s/idemploader-api.yml | envsubst > ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-api.yml
+        env:
+          IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
+          IDEMPLOADER_API_IMAGE: ${IDEMPLOADER_API_IMAGE}
+          IDEMPLOADER_S3_HOST: ${{ secrets.IDEMPLOADER_S3_HOST }}
+          IDEMPLOADER_S3_ACCESS_KEY: ${{ secrets.IDEMPLOADER_S3_ACCESS_KEY }}
+          IDEMPLOADER_S3_ACCESS_SECRET: ${{ secrets.IDEMPLOADER_S3_ACCESS_SECRET }}
+          IDEMPLOADER_S3_BUCKET: ${{ secrets.IDEMPLOADER_S3_BUCKET }}
+          IDEMPLOADER_S3_PATH: ${{ secrets.IDEMPLOADER_S3_PATH }}
+          IDEMPLOADER_HOST: "https://idemploader.wailorman.ru/api/v1"
+          IDEMPLOADER_ALLOWED_ACCESS_TOKEN: ${{ secrets.IDEMPLOADER_ALLOWED_ACCESS_TOKEN }}
+      
+      - name: Populate Docs deployment configuration
+        run: cat ${GITHUB_WORKSPACE}/.k8s/idemploader-docs.yml | envsubst > ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-docs.yml
+        env:
+          IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
+          IDEMPLOADER_DOCS_IMAGE: ${IDEMPLOADER_DOCS_IMAGE}
+          
+      - name: Save DigitalOcean kubeconfig
+        uses: digitalocean/action-doctl@master
+        env:
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        with:
+          args: kubernetes cluster kubeconfig show ${{ secrets.DIGITALOCEAN_K8S_CLUSTER_NAME }} > ${GITHUB_WORKSPACE}/.k8s/config
+
+      - name: Apply API deployment configuration to the cluster
+        uses: docker://lachlanevenson/k8s-kubectl
+        with:
+          args: --kubeconfig=${GITHUB_WORKSPACE}/.k8s/config apply -f ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-api.yml
+
+      - name: Apply Docs deployment configuration to the cluster
+        uses: docker://lachlanevenson/k8s-kubectl
+        with:
+          args: --kubeconfig=${GITHUB_WORKSPACE}/.k8s/config apply -f ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-docs.yml
+      
+      - name: Verify API deployment
+        uses: docker://lachlanevenson/k8s-kubectl
+        with:
+          args: --kubeconfig=${GITHUB_WORKSPACE}/.k8s/config rollout status deployment/${IDEMPLOADER_API_K8S_DEPLOYMENT_NAME}
+      
+      - name: Verify Docs deployment
+        uses: docker://lachlanevenson/k8s-kubectl
+        with:
+          args: --kubeconfig=${GITHUB_WORKSPACE}/.k8s/config rollout status deployment/${IDEMPLOADER_DOCS_K8S_DEPLOYMENT_NAME}
