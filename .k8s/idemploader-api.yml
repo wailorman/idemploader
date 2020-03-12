@@ -1,0 +1,73 @@
+# export $(egrep -v '^#' k8s.env | xargs)
+# cat .k8s/idemploader-api.yml | envsubst
+# envsubst < .k8s/idemploader-api.yml | kubectl apply -f -
+# kubectl port-forward svc/idemploader-api 30200:3000
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${IDEMPLOADER_K8S_NAMESPACE}
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: idemploader-api
+  namespace: ${IDEMPLOADER_K8S_NAMESPACE}
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: idemploader-api
+  template:
+    metadata:
+      labels:
+        app: idemploader-api
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - image: ${IDEMPLOADER_API_IMAGE}
+        imagePullPolicy: Always
+        name: idemploader-api
+        ports:
+        - containerPort: 3000
+        resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+        env:
+        - name: GIN_MODE
+          value: "release"
+        - name: IDEMPLOADER_S3_HOST
+          value: "${IDEMPLOADER_S3_HOST}"
+        - name: IDEMPLOADER_S3_ACCESS_KEY
+          value: "${IDEMPLOADER_S3_ACCESS_KEY}"
+        - name: IDEMPLOADER_S3_ACCESS_SECRET
+          value: "${IDEMPLOADER_S3_ACCESS_SECRET}"
+        - name: IDEMPLOADER_S3_BUCKET
+          value: "${IDEMPLOADER_S3_BUCKET}"
+        - name: IDEMPLOADER_S3_PATH
+          value: "${IDEMPLOADER_S3_PATH}"
+        - name: IDEMPLOADER_HOST
+          value: "${IDEMPLOADER_HOST}"
+        - name: IDEMPLOADER_PORT
+          value: "3000"
+        - name: IDEMPLOADER_ALLOWED_ACCESS_TOKEN
+          value: "${IDEMPLOADER_ALLOWED_ACCESS_TOKEN}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: idemploader-api
+  namespace: ${IDEMPLOADER_K8S_NAMESPACE}
+  labels:
+    app: idemploader-api
+spec:
+  ports:
+  - name: http
+    port: 3000
+  selector:
+    app: idemploader-api

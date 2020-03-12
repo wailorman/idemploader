@@ -1,0 +1,9 @@
+.env
+.idea
+.vscode
+config/k8s/
+docker-compose.yml
+Dockerfile
+main
+k8s.env
+.k8s
