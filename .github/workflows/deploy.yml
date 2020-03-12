@@ -16,10 +16,8 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v1
       
-      - uses: actions/docker/login@master
-        with:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_LOGIN }}
-          DOCKER_PASSWPORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Docker login
+        run: docker login --username ${{ secrets.DOCKER_LOGIN }} --password ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build API docker image
         run: docker build --tag ${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA} .
