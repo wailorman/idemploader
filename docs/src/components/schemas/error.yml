@@ -1,0 +1,17 @@
+description: Error
+type: object
+required:
+  - code
+properties:
+  code:
+    type: string
+    description: String code of the error
+    example: ""
+  message:
+    type: string
+    description: Error message for humans
+    example: ""
+  description:
+    type: string
+    description: Error detailed description for humans
+    example: ""

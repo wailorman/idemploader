@@ -1,0 +1,6 @@
+description: File body
+content:
+  text/plain:
+    schema:
+      type: string
+      format: binary

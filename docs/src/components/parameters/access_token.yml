@@ -1,0 +1,7 @@
+name: X-Access-Token
+in: header
+description: Access token
+required: true
+schema:
+  type: string
+  default: "{{access_token}}"

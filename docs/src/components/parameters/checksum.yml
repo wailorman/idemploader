@@ -1,0 +1,6 @@
+name: checksum
+in: path
+description: SHA256 file content checksum
+required: true
+schema:
+  type: string

@@ -1,0 +1,5 @@
+description: File info
+content:
+  application/json:
+    schema:
+      $ref: "#/components/schemas/file"

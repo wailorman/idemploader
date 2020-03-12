@@ -1,0 +1,21 @@
+description: File
+type: object
+required:
+  - url
+  - checksum
+properties:
+  url:
+    type: string
+    example: "https://idemploader.feedscanner.io/api/v1/files/7fba1fe6dca6bddfb26e60cd17cb20bc3202a64eb1d45f9cfa6fda1444cb47b5"
+  size:
+    type: integer
+    description: Size in bytes
+    example: "6732"
+  checksum:
+    type: string
+    description: SHA256 file content checksum
+    example: "7fba1fe6dca6bddfb26e60cd17cb20bc3202a64eb1d45f9cfa6fda1444cb47b5"
+  mime_type:
+    type: string
+    example: "image/png"
+  

@@ -1,0 +1,15 @@
+tags:
+  - Files
+summary: File info
+parameters:
+  - $ref: "#/components/parameters/access_token"
+  - $ref: "#/components/parameters/checksum"
+responses:
+  "200":
+    "$ref": "#/components/responses/file_info"
+  "401":
+    "$ref": "#/components/responses/401"
+  "500":
+    "$ref": "#/components/responses/error"
+  "404":
+    "$ref": "#/components/responses/404"

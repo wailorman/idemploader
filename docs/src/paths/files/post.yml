@@ -1,0 +1,20 @@
+tags:
+  - Files
+summary: Upload file
+parameters:
+  - $ref: "#/components/parameters/access_token"
+requestBody:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        $ref: '#/components/schemas/file_input'
+responses:
+  "200":
+    "$ref": "#/components/responses/file_info"
+  "401":
+    "$ref": "#/components/responses/401"
+  "422":
+    "$ref": "#/components/responses/422"
+  "500":
+    "$ref": "#/components/responses/error"

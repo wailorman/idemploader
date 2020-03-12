@@ -1,0 +1,15 @@
+openapi: 3.0.0
+info:
+  title: "Idemploader API"
+  description: |
+    Documentation for Idemploader API
+  termsOfService: https://example.com
+  version: "1.0"
+
+servers:
+  - url: "{idemploader_host}"
+    variables:
+      server:
+        default: "http://localhost:3000"
+      access_token:
+        default: "jsidfho7asdyf8i7asydf87as8dfas"

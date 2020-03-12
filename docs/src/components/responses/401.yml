@@ -1,0 +1,10 @@
+description: |
+  Unauthorized. Possible situations:
+  * Token has been expired and you should get a new one
+  * You have not access for this action
+  * Token is invalid and you should get a new one
+  * You didn't passed X-Access-Token in headers
+content:
+  application/json:
+    schema:
+      $ref: "#/components/schemas/error"
