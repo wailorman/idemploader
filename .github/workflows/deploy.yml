@@ -15,13 +15,11 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v1
-        
-      - name: Login docker
-        uses: azure/docker-login@v1
+      
+      - uses: actions/docker/login@master
         with:
-          login-server: ${{ secrets.DOCKER_REGISTRY }} # default: index.docker.io
-          username: ${{ secrets.DOCKER_LOGIN }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_LOGIN }}
+          DOCKER_PASSWPORD: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build API docker image
         run: docker build --tag ${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA} .
