@@ -69,6 +69,11 @@ func Router(cfg *Config) *gin.Engine {
 		getFileInfoHandler(storage),
 	)
 
+	router.GET(
+		"/healthcheck",
+		healthcheckHandler,
+	)
+
 	return router
 }
 
