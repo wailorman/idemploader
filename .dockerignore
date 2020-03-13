@@ -7,3 +7,4 @@ Dockerfile
 main
 k8s.env
 .k8s
+.github
