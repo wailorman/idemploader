@@ -4,4 +4,4 @@ description: Access token
 required: true
 schema:
   type: string
-  default: "{{access_token}}"
+  default: "{{idemploader_access_token}}"
