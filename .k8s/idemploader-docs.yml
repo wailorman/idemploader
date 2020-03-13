@@ -3,16 +3,10 @@
 # envsubst < .k8s/idemploader-docs.yml | kubectl apply -f -
 # kubectl port-forward svc/idemploader-docs 30201:8080
 
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ${IDEMPLOADER_K8S_NAMESPACE}
----
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
   name: idemploader-docs
-  namespace: ${IDEMPLOADER_K8S_NAMESPACE}
 spec:
   replicas: 1
   selector:
@@ -43,7 +37,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: idemploader-docs
-  namespace: ${IDEMPLOADER_K8S_NAMESPACE}
   labels:
     app: idemploader-docs
 spec:

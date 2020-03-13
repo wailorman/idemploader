@@ -45,7 +45,6 @@ jobs:
       - name: Populate Docs deployment configuration
         run: cat ./.k8s/idemploader-docs.yml | envsubst > ./tmp/.k8s/idemploader-docs.yml
         env:
-          IDEMPLOADER_K8S_NAMESPACE: "idemploader"
           IDEMPLOADER_DOCS_IMAGE: "${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${{ github.sha }}"
           
       - name: Save DigitalOcean kubeconfig
