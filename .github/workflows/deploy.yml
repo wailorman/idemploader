@@ -35,7 +35,7 @@ jobs:
         run: mkdir -p ./tmp/.k8s/
       
       - name: Populate API deployment configuration
-        run: cat ./tmp/.k8s/idemploader-api.yml | envsubst > ./tmp/.k8s/idemploader-api.yml
+        run: cat ./.k8s/idemploader-api.yml | envsubst > ./tmp/.k8s/idemploader-api.yml
         env:
           IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
           IDEMPLOADER_API_IMAGE: ${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA}
@@ -48,7 +48,7 @@ jobs:
           IDEMPLOADER_ALLOWED_ACCESS_TOKEN: ${{ secrets.IDEMPLOADER_ALLOWED_ACCESS_TOKEN }}
       
       - name: Populate Docs deployment configuration
-        run: cat ./tmp/.k8s/idemploader-docs.yml | envsubst > ./tmp/.k8s/idemploader-docs.yml
+        run: cat ./.k8s/idemploader-docs.yml | envsubst > ./tmp/.k8s/idemploader-docs.yml
         env:
           IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
           IDEMPLOADER_DOCS_IMAGE: ${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${GITHUB_SHA}
