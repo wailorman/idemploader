@@ -6,7 +6,6 @@ on:
       - master
 
 env:
-  IDEMPLOADER_K8S_NAMESPACE: "idemploader"
   IDEMPLOADER_API_K8S_DEPLOYMENT_NAME: "idemploader-api"
   IDEMPLOADER_DOCS_K8S_DEPLOYMENT_NAME: "idemploader-docs"
 jobs:
@@ -37,7 +36,7 @@ jobs:
       - name: Populate API deployment configuration
         run: cat ./.k8s/idemploader-api.yml | envsubst > ./tmp/.k8s/idemploader-api.yml
         env:
-          IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
+          IDEMPLOADER_K8S_NAMESPACE: "idemploader"
           IDEMPLOADER_API_IMAGE: ${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA}
           IDEMPLOADER_S3_HOST: ${{ secrets.IDEMPLOADER_S3_HOST }}
           IDEMPLOADER_S3_ACCESS_KEY: ${{ secrets.IDEMPLOADER_S3_ACCESS_KEY }}
@@ -50,7 +49,7 @@ jobs:
       - name: Populate Docs deployment configuration
         run: cat ./.k8s/idemploader-docs.yml | envsubst > ./tmp/.k8s/idemploader-docs.yml
         env:
-          IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
+          IDEMPLOADER_K8S_NAMESPACE: "idemploader"
           IDEMPLOADER_DOCS_IMAGE: ${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${GITHUB_SHA}
           
       - name: Save DigitalOcean kubeconfig
