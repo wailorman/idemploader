@@ -32,7 +32,7 @@ jobs:
         run: docker push ${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${GITHUB_SHA}
       
       - name: Populate API deployment configuration
-        run: cat ${GITHUB_WORKSPACE}/.k8s/idemploader-api.yml | envsubst > ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-api.yml
+        run: cat ${GITHUB_WORKSPACE}/.k8s/idemploader-api.yml | envsubst > /tmp/.k8s/idemploader-api.yml
         env:
           IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
           IDEMPLOADER_API_IMAGE: ${{ secrets.IDEMPLOADER_API_IMAGE_BASE }}${GITHUB_SHA}
@@ -45,7 +45,7 @@ jobs:
           IDEMPLOADER_ALLOWED_ACCESS_TOKEN: ${{ secrets.IDEMPLOADER_ALLOWED_ACCESS_TOKEN }}
       
       - name: Populate Docs deployment configuration
-        run: cat ${GITHUB_WORKSPACE}/.k8s/idemploader-docs.yml | envsubst > ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-docs.yml
+        run: cat ${GITHUB_WORKSPACE}/.k8s/idemploader-docs.yml | envsubst > /tmp/.k8s/idemploader-docs.yml
         env:
           IDEMPLOADER_K8S_NAMESPACE: ${IDEMPLOADER_K8S_NAMESPACE}
           IDEMPLOADER_DOCS_IMAGE: ${{ secrets.IDEMPLOADER_DOCS_IMAGE_BASE }}${GITHUB_SHA}
@@ -60,12 +60,12 @@ jobs:
       - name: Apply API deployment configuration to the cluster
         uses: docker://lachlanevenson/k8s-kubectl
         with:
-          args: --kubeconfig=${GITHUB_WORKSPACE}/.k8s/config apply -f ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-api.yml
+          args: --kubeconfig=${GITHUB_WORKSPACE}/.k8s/config apply -f /tmp/.k8s/idemploader-api.yml
 
       - name: Apply Docs deployment configuration to the cluster
         uses: docker://lachlanevenson/k8s-kubectl
         with:
-          args: --kubeconfig=${GITHUB_WORKSPACE}/.k8s/config apply -f ${GITHUB_WORKSPACE}/tmp/.k8s/idemploader-docs.yml
+          args: --kubeconfig=${GITHUB_WORKSPACE}/.k8s/config apply -f /tmp/.k8s/idemploader-docs.yml
       
       - name: Verify API deployment
         uses: docker://lachlanevenson/k8s-kubectl
