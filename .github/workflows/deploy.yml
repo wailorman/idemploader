@@ -58,7 +58,7 @@ jobs:
       - name: Create regcred
         uses: docker://lachlanevenson/k8s-kubectl
         with:
-          args: --kubeconfig=./tmp/.k8s/config create create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKER_LOGIN }} --docker-password=${{ secrets.DOCKER_PASSWORD }} --docker-email=${{ secrets.DOCKER_EMAIL }} -o yaml --dry-run | kubectl apply -n idemploader -f -
+          args: --kubeconfig=./tmp/.k8s/config create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=${{ secrets.DOCKER_LOGIN }} --docker-password=${{ secrets.DOCKER_PASSWORD }} --docker-email=${{ secrets.DOCKER_EMAIL }} -o yaml --dry-run | kubectl apply -n idemploader -f -
 
       - name: Apply API deployment configuration to the cluster
         uses: docker://lachlanevenson/k8s-kubectl
