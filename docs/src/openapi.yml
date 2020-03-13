@@ -9,7 +9,7 @@ info:
 servers:
   - url: "{idemploader_host}"
     variables:
-      server:
+      idemploader_host:
         default: "http://localhost:3000"
-      access_token:
+      idemploader_access_token:
         default: "jsidfho7asdyf8i7asydf87as8dfas"
