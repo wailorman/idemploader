@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     image: ${IDEMPLOADER_API_IMAGE}
     ports:
-      - "8080:3000"
+      - "7100:3000"
     environment:
       - GIN_MODE=${GIN_MODE:-release}
       - IDEMPLOADER_S3_HOST=${IDEMPLOADER_S3_HOST}
@@ -23,4 +23,4 @@ services:
       dockerfile: Dockerfile
     image: ${IDEMPLOADER_DOCS_IMAGE}
     ports:
-      - "8081:8080"
+      - "7101:8080"

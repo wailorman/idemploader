@@ -1,4 +1,4 @@
-# export $(egrep -v '^#' k8s.env | xargs)
+# export $(cat k8s.env | xargs)
 # cat .k8s/idemploader-api.yml | envsubst
 # envsubst < .k8s/idemploader-api.yml | kubectl apply -f -
 # kubectl port-forward svc/idemploader-api 30200:3000

@@ -1,4 +1,4 @@
-# export $(cat .env | xargs)
+# export $(cat k8s.env | xargs)
 # cat .k8s/idemploader-docs.yml | envsubst
 # envsubst < .k8s/idemploader-docs.yml | kubectl apply -f -
 # kubectl port-forward svc/idemploader-docs 30201:8080
