@@ -42,7 +42,7 @@ func Router(cfg *Config) *gin.Engine {
 		S3Bucket:       cfg.S3Bucket,
 		S3Path:         cfg.S3Path,
 		URLBuilder: func(checksum string) string {
-			return cfg.Host + "/files/" + checksum
+			return cfg.Host + "/v1/files/" + checksum
 		},
 	})
 
@@ -53,18 +53,18 @@ func Router(cfg *Config) *gin.Engine {
 	router.Use(nice.Recovery(recoveryHandler))
 
 	router.POST(
-		"/files",
+		"/v1/files",
 		authMiddleware(AuthConfig{AllowedAccessToken: cfg.AllowedAccessToken}),
 		uploadFileHandler(storage),
 	)
 
 	router.GET(
-		"/files/:checksum",
+		"/v1/files/:checksum",
 		serveFileHandler(storage),
 	)
 
 	router.GET(
-		"/files/:checksum/info",
+		"/v1/files/:checksum/info",
 		authMiddleware(AuthConfig{AllowedAccessToken: cfg.AllowedAccessToken}),
 		getFileInfoHandler(storage),
 	)
