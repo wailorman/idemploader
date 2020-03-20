@@ -12,12 +12,15 @@ import (
 	"os"
 
 	"github.com/sendgrid/rest"
+	"github.com/sirupsen/logrus"
+	"github.com/wailorman/idemploader/ctxlog"
 )
 
 // IdemploaderAPI _
 type IdemploaderAPI struct {
 	baseURL     string
 	accessToken string
+	log         *logrus.Entry
 }
 
 // File _
@@ -36,10 +39,17 @@ type Config struct {
 
 // New _
 func New(cfg Config) *IdemploaderAPI {
-	return &IdemploaderAPI{
+	api := &IdemploaderAPI{
 		baseURL:     cfg.Host,
 		accessToken: cfg.AccessToken,
+		log:         ctxlog.New("idemploader/client"),
 	}
+
+	api.log.WithFields(logrus.Fields{
+		"host": api.baseURL,
+	}).Info("Initializing ...")
+
+	return api
 }
 
 // fileField _
