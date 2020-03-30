@@ -39,7 +39,7 @@ jobs:
           IDEMPLOADER_S3_ACCESS_SECRET: ${{ secrets.IDEMPLOADER_S3_ACCESS_SECRET }}
           IDEMPLOADER_S3_BUCKET: ${{ secrets.IDEMPLOADER_S3_BUCKET }}
           IDEMPLOADER_S3_PATH: ${{ secrets.IDEMPLOADER_S3_PATH }}
-          IDEMPLOADER_HOST: "https://idemploader.wailorman.ru/api/v1"
+          IDEMPLOADER_HOST: "https://idemploader.wailorman.ru/api"
           IDEMPLOADER_ALLOWED_ACCESS_TOKEN: ${{ secrets.IDEMPLOADER_ALLOWED_ACCESS_TOKEN }}
       
       - name: Populate Docs deployment configuration
