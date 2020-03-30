@@ -72,11 +72,8 @@ func (sf *StorageFile) getS3Object() (*minio.Object, error) {
 	return object, nil
 }
 
-// ErrFileNotFoundCode _
-const ErrFileNotFoundCode = "FILE_NOT_FOUND"
-
 // ErrFileNotFound _
-var ErrFileNotFound = errors.New(ErrFileNotFoundCode)
+var ErrFileNotFound = errors.New("FILE_NOT_FOUND")
 
 // StorageConfig _
 type StorageConfig struct {

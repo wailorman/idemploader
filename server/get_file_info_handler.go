@@ -15,7 +15,7 @@ func getFileInfoHandler(storage *Storage) func(*gin.Context) {
 		if err != nil {
 			if err == ErrFileNotFound {
 				c.JSON(http.StatusNotFound, ErrorResponse{
-					Code: ErrFileNotFoundCode,
+					Code: ErrFileNotFound.Error(),
 				})
 
 				return
