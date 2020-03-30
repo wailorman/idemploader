@@ -15,6 +15,29 @@ without worrying about:
 
 ## Usage
 
+```
+POST /v1/files
+Content-Type: multipart/form-data
+X-Access-Token: <access_token>
+---
+file=<binary_data>
+```
+
+will respond:
+
+```json
+{
+    "url": "https://idemploader.wailorman.ru/api/v1/files/9ad85e23ad544259991a90445dcea2d115acf471ce4907dca11d600e24c24e2e",
+    "size": 821,
+    "checksum": "9ad85e23ad544259991a90445dcea2d115acf471ce4907dca11d600e24c24e2e",
+    "mime_type": "text/plain"
+}
+```
+
+read more in the [docs](https://idemploader.wailorman.ru/docs/api/v1/)
+
+## Installation
+
 ### ENV reference
 * **`IDEMPLOADER_API_IMAGE`** — docker image name (default is `wailorman/idemploader_api:latest`)
 * **`IDEMPLOADER_S3_HOST`**
