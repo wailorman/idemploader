@@ -26,5 +26,5 @@ func main() {
 		AllowedAccessToken: os.Getenv("IDEMPLOADER_ALLOWED_ACCESS_TOKEN"),
 	})
 
-	r.Run(":" + os.Getenv("IDEMPLOADER_PORT"))
+	r.Run(":" + os.Getenv("PORT"))
 }

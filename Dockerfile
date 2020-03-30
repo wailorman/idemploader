@@ -14,8 +14,8 @@ ADD sample.env .env
 
 RUN go build -o main cmd/server/main.go
 
-EXPOSE 8080
+ENV PORT 80
 
-ENV IDEMPLOADER_PORT 3000
+EXPOSE 80
 
 CMD ["./main"]

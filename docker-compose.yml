@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     image: ${IDEMPLOADER_API_IMAGE}
     ports:
-      - "7100:3000"
+      - "7100:80"
     environment:
       - GIN_MODE=${GIN_MODE:-release}
       - IDEMPLOADER_S3_HOST=${IDEMPLOADER_S3_HOST}
@@ -15,7 +15,6 @@ services:
       - IDEMPLOADER_S3_BUCKET=${IDEMPLOADER_S3_BUCKET}
       - IDEMPLOADER_S3_PATH=${IDEMPLOADER_S3_PATH}
       - IDEMPLOADER_HOST=${IDEMPLOADER_HOST:-http://localhost:8080}
-      - IDEMPLOADER_PORT=${IDEMPLOADER_PORT:-3000}
       - IDEMPLOADER_ALLOWED_ACCESS_TOKEN=${IDEMPLOADER_ALLOWED_ACCESS_TOKEN}
   docs:
     build:

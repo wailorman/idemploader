@@ -47,8 +47,6 @@ spec:
           value: "${IDEMPLOADER_S3_PATH}"
         - name: IDEMPLOADER_HOST
           value: "${IDEMPLOADER_HOST}"
-        - name: IDEMPLOADER_PORT
-          value: "3000"
         - name: IDEMPLOADER_ALLOWED_ACCESS_TOKEN
           value: "${IDEMPLOADER_ALLOWED_ACCESS_TOKEN}"
 ---
@@ -61,6 +59,6 @@ metadata:
 spec:
   ports:
   - name: http
-    port: 3000
+    port: 80
   selector:
     app: idemploader-api
