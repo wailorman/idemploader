@@ -1,7 +1,7 @@
-# Start from the latest golang base image
 FROM golang:1.13
 
 LABEL maintainer="Sergey Popov <sergey.popov.w@gmail.com>"
+LABEL repo="github.com/wailorman/idemploader"
 
 WORKDIR /app
 
