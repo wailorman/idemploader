@@ -8,7 +8,7 @@ kind: Deployment
 metadata:
   name: idemploader-api
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: idemploader-api
@@ -35,20 +35,41 @@ spec:
         env:
         - name: GIN_MODE
           value: "release"
-        - name: IDEMPLOADER_S3_HOST
-          value: "${IDEMPLOADER_S3_HOST}"
-        - name: IDEMPLOADER_S3_ACCESS_KEY
-          value: "${IDEMPLOADER_S3_ACCESS_KEY}"
-        - name: IDEMPLOADER_S3_ACCESS_SECRET
-          value: "${IDEMPLOADER_S3_ACCESS_SECRET}"
-        - name: IDEMPLOADER_S3_BUCKET
-          value: "${IDEMPLOADER_S3_BUCKET}"
-        - name: IDEMPLOADER_S3_PATH
-          value: "${IDEMPLOADER_S3_PATH}"
         - name: IDEMPLOADER_HOST
-          value: "${IDEMPLOADER_HOST}"
+          valueFrom:
+            secretKeyRef:
+              name: idemploader-secrets
+              key: idemploader_api_url
         - name: IDEMPLOADER_ALLOWED_ACCESS_TOKEN
-          value: "${IDEMPLOADER_ALLOWED_ACCESS_TOKEN}"
+          valueFrom:
+            secretKeyRef:
+              name: idemploader-secrets
+              key: idemploader_api_key
+        - name: IDEMPLOADER_S3_HOST
+          valueFrom:
+            secretKeyRef:
+              name: idemploader-secrets
+              key: idemploader_s3_host
+        - name: IDEMPLOADER_S3_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: idemploader-secrets
+              key: idemploader_s3_access_key
+        - name: IDEMPLOADER_S3_ACCESS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: idemploader-secrets
+              key: idemploader_s3_access_secret
+        - name: IDEMPLOADER_S3_BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: idemploader-secrets
+              key: idemploader_s3_bucket
+        - name: IDEMPLOADER_S3_PATH
+          valueFrom:
+            secretKeyRef:
+              name: idemploader-secrets
+              key: idemploader_s3_path
 ---
 apiVersion: v1
 kind: Service
